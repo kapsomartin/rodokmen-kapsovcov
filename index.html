@@ -1,0 +1,515 @@
+<!doctype html>
+<html lang="sk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Rodokmeň Kapšovcov</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alegreya+SC:wght@500;700&family=Alegreya:ital,wght@0,400;0,500;0,700;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Rozloženie: matričná kniha – vodorovný rodokmeň po generáciách (zľava doprava ako stĺpce knihy), pod ním príbehy a otvorené otázky. */
+:root {
+  --paper: #eef0ea;      /* papier matriky, zelenkastá šedá */
+  --sheet: #f7f8f4;      /* list karty */
+  --ink: #23262b;        /* železitý atrament */
+  --ink-soft: #5b6068;
+  --rule: #c9cdc3;       /* linajky knihy */
+  --gold: #9a7520;       /* kremnické zlato, mincovňa */
+  --gold-soft: #e9dfc4;
+  --family: #3d6b8e;     /* údaj od rodiny */
+  --probable: #8a5a1c;   /* pravdepodobné */
+  --display: "Alegreya SC", "Iowan Old Style", Georgia, serif;
+  --body: "Alegreya", "Iowan Old Style", Georgia, serif;
+  --data: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #16181b; --sheet: #1f2226; --ink: #e6e6e0; --ink-soft: #a3a69f; --rule: #383c40;
+    --gold: #d1aa52; --gold-soft: #3a3120; --family: #8cb6d6; --probable: #d9a05b; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #16181b; --sheet: #1f2226; --ink: #e6e6e0; --ink-soft: #a3a69f; --rule: #383c40;
+  --gold: #d1aa52; --gold-soft: #3a3120; --family: #8cb6d6; --probable: #d9a05b; color-scheme: dark;
+}
+
+body { background: var(--paper); color: var(--ink); font-family: var(--body); font-size: 17px; line-height: 1.5; }
+.wrap { max-width: 1240px; margin: 0 auto; padding-block: 28px 64px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+
+header.top { display: grid; gap: 6px; padding-bottom: 18px; border-bottom: 2px solid var(--ink); margin-bottom: 8px; }
+.eyebrow { font-family: var(--data); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-soft); }
+h1 { font-family: var(--display); font-weight: 700; font-size: clamp(34px, 6vw, 58px); line-height: 1.02; margin: 0; text-wrap: balance; letter-spacing: .01em; }
+.lead { max-width: 64ch; margin: 6px 0 0; color: var(--ink-soft); }
+.meta { display: flex; flex-wrap: wrap; gap: 8px 20px; font-family: var(--data); font-size: 13px; color: var(--ink-soft); margin-top: 8px; }
+.meta b { color: var(--ink); font-weight: 500; }
+
+.legend { display: flex; flex-wrap: wrap; gap: 10px 18px; align-items: center; margin: 16px 0 6px; font-size: 14px; color: var(--ink-soft); }
+.chip { display: inline-flex; align-items: center; gap: 6px; font-family: var(--data); font-size: 11.5px; letter-spacing: .03em; padding: 2px 8px; border-radius: 3px; border: 1px solid currentColor; white-space: nowrap; }
+.chip.fam { color: var(--family); }
+.chip.prob { color: var(--probable); border-style: dashed; }
+.chip.doc { color: var(--gold); }
+.chip.zij { color: var(--ink-soft); }
+
+h2 { font-family: var(--display); font-weight: 500; font-size: 26px; margin: 44px 0 6px; letter-spacing: .02em; text-wrap: balance; }
+.sub { margin: 0 0 18px; color: var(--ink-soft); max-width: 70ch; }
+
+/* Rodokmeň: 4 stĺpce = 4 generácie, 8 riadkov */
+.tree-scroll { overflow-x: auto; margin: 0 calc(-1 * max(16px, env(safe-area-inset-left, 0px))); padding: 4px max(16px, env(safe-area-inset-left, 0px)) 14px; }
+.tree { display: grid; grid-template-columns: repeat(4, minmax(220px, 1fr)); grid-template-rows: repeat(8, auto); column-gap: 26px; row-gap: 10px; min-width: 960px; position: relative; }
+.gen-head { font-family: var(--data); font-size: 11.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-soft); padding-bottom: 6px; border-bottom: 1px solid var(--rule); }
+.heads { display: grid; grid-template-columns: repeat(4, minmax(220px, 1fr)); column-gap: 26px; min-width: 960px; margin-bottom: 10px; }
+
+.p { align-self: center; background: var(--sheet); border: 1px solid var(--rule); border-radius: 4px; padding: 10px 12px 11px; position: relative; display: grid; gap: 3px; min-width: 0; }
+.p::before { content: ""; position: absolute; left: -27px; top: 50%; width: 26px; border-top: 1px solid var(--rule); }
+.p.g0::before { display: none; }
+.p .k { position: absolute; top: 8px; right: 10px; font-family: var(--data); font-size: 11px; color: var(--ink-soft); }
+.p .n { font-weight: 700; font-size: 18px; line-height: 1.2; padding-right: 28px; }
+.p .y { font-family: var(--data); font-size: 13px; color: var(--ink); font-variant-numeric: tabular-nums; }
+.p .f { font-size: 14.5px; color: var(--ink-soft); line-height: 1.35; }
+.p .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+.p.male { border-left: 3px solid var(--ink-soft); }
+.p.female { border-left: 3px solid var(--gold); }
+.p.highlight { box-shadow: 0 0 0 2px var(--gold-soft); }
+.more { font-size: 13.5px; color: var(--ink-soft); margin-top: 6px; font-style: italic; }
+
+/* Príbehy */
+.stories { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 18px; }
+.story { border-top: 2px solid var(--ink); padding-top: 12px; min-width: 0; }
+.story h3 { font-family: var(--display); font-weight: 500; font-size: 20px; margin: 0 0 6px; line-height: 1.2; text-wrap: balance; }
+.story p { margin: 0 0 8px; }
+.story .src { font-family: var(--data); font-size: 12px; color: var(--ink-soft); }
+
+/* Rody */
+.lines { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 0; border-top: 1px solid var(--rule); }
+.line { display: grid; grid-template-columns: 34px 1fr; gap: 10px; padding: 12px 6px 12px 0; border-bottom: 1px solid var(--rule); min-width: 0; }
+.line .no { font-family: var(--data); font-size: 12px; color: var(--ink-soft); padding-top: 3px; }
+.line b { font-family: var(--display); font-weight: 500; font-size: 18px; }
+.line span { display: block; font-size: 14.5px; color: var(--ink-soft); }
+
+/* Otvorené otázky */
+.open { list-style: none; padding: 0; margin: 0; display: grid; gap: 0; border-top: 1px solid var(--rule); }
+.open li { padding: 11px 0; border-bottom: 1px solid var(--rule); display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 12px; align-items: baseline; }
+.open li small { font-family: var(--data); font-size: 11.5px; color: var(--ink-soft); white-space: nowrap; }
+
+.side { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px 28px; }
+.side div { min-width: 0; }
+.side h4 { font-family: var(--data); font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-soft); margin: 0 0 4px; font-weight: 500; }
+.side p { margin: 0; font-size: 15.5px; }
+
+footer { margin-top: 48px; padding-top: 14px; border-top: 2px solid var(--ink); font-size: 14px; color: var(--ink-soft); display: grid; gap: 6px; }
+footer a { color: var(--family); }
+
+@media (max-width: 760px) {
+  .tree-scroll { overflow: visible; margin: 0; padding: 0; }
+  .heads { display: none; }
+  .tree { display: flex; flex-direction: column; min-width: 0; gap: 10px; }
+  .p::before { display: none; }
+  .p { align-self: stretch; }
+  .tree .genlabel { display: block; }
+}
+/* Farby ôsmich rodov (vejár a vetvy) */
+:root { --nat:#7a6a8a; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --nat:#b9a8c9; } }
+:root[data-theme="dark"] { --nat:#b9a8c9; }
+:root { --l8:#6f7f4f; --l9:#9a8f6a; --l10:#3d6b8e; --l11:#9a7520; --l12:#8e5b52; --l13:#7a6d8f; --l14:#2f7566; --l15:#a5643a; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --l8:#a3b37f; --l9:#c7bc94; --l10:#8cb6d6; --l11:#d1aa52; --l12:#d19a8f; --l13:#b4a6cc; --l14:#74c2b0; --l15:#e09a6c; } }
+:root[data-theme="dark"] { --l8:#a3b37f; --l9:#c7bc94; --l10:#8cb6d6; --l11:#d1aa52; --l12:#d19a8f; --l13:#b4a6cc; --l14:#74c2b0; --l15:#e09a6c; }
+
+/* Vejár */
+.fan-wrap { display: grid; grid-template-columns: minmax(0, 1fr) 260px; gap: 22px; align-items: start; }
+.fan svg { width: 100%; height: auto; display: block; }
+.fan .slot { cursor: pointer; }
+.fan .slot:hover path, .fan .slot.on path { stroke: var(--ink); stroke-width: 2; }
+.fan text { font-family: var(--body); pointer-events: none; }
+.fan-side { display: grid; gap: 14px; font-size: 14.5px; }
+.fan-key { display: grid; gap: 5px; }
+.fan-key span, .fan-st span { display: flex; align-items: center; gap: 8px; }
+.fan-key i { width: 14px; height: 14px; border-radius: 2px; flex: none; }
+.fan-st { display: grid; gap: 5px; color: var(--ink-soft); }
+.fan-st svg { flex: none; }
+.fan-info { min-height: 92px; background: var(--sheet); border: 1px solid var(--rule); border-radius: 4px; padding: 10px 12px; }
+.fan-info b { display: block; font-size: 16.5px; }
+.fan-info .y { font-family: var(--data); font-size: 12.5px; }
+.fan-info .t { color: var(--ink-soft); font-size: 14px; }
+@media (max-width: 760px) { .fan-wrap { grid-template-columns: 1fr; } }
+
+/* Vetvy */
+.branches { display: grid; gap: 22px; }
+.branch { border-top: 2px solid var(--lc); padding-top: 10px; min-width: 0; }
+.branch.full { border-top-color: var(--ink); }
+.branch.full .scroll { max-height: 80vh; overflow: auto; border-bottom: 1px solid var(--rule); }
+.branch header { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 14px; margin-bottom: 8px; }
+.branch h3 { font-family: var(--display); font-weight: 500; font-size: 21px; margin: 0; color: var(--lc); }
+.branch .bm { font-family: var(--data); font-size: 12px; color: var(--ink-soft); }
+.branch .scroll { overflow-x: auto; padding-bottom: 6px; }
+.branch svg { display: block; }
+.branch text { font-family: var(--body); fill: var(--ink); }
+.branch .yy { font-family: var(--data); font-size: 11.5px; }
+.branch .tt { font-size: 12px; fill: var(--ink-soft); }
+.branch .kk { font-family: var(--data); font-size: 10px; fill: var(--ink-soft); }
+.branch .stub text { fill: var(--ink-soft); font-size: 12px; font-style: italic; }
+
+.genlabel { display: none; font-family: var(--data); font-size: 11.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-soft); margin-top: 14px; padding-bottom: 4px; border-bottom: 1px solid var(--rule); }
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="eyebrow">Predbežný rodokmeň · stav k <span id="stav">30. 10. 2026</span></div>
+    <h1>Rodokmeň Kapšovcov</h1>
+    <p class="lead">Rodina Martina Kapšu po prastarých rodičov: Trnové pri Žiline, Kremnica, Stará Kremnička, Lovča, Kysuca pri Lome nad Rimavicou a Paríž. Zatiaľ hlavne z rozhovoru a z rodinného zápisníka. Matriky sa práve začínajú overovať.</p>
+    <div class="meta" id="meta"></div>
+  </header>
+
+  <div class="legend">
+    <span class="chip fam">od rodiny</span> údaj z rozhovoru alebo zo zápisníka
+    <span class="chip prob">pravdepodobné</span> stopa v archíve, ešte nepotvrdená
+    <span class="chip doc">doložené</span> prečítané v matrike
+  </div>
+
+  <h2>Všetky generácie naraz</h2>
+  <p class="sub">Celý kruh: horná polovica sú Martinovi predkovia, dolná Natáliini. V strede Martin a Natália, každý ďalší kruh je o generáciu staršie, až po 8. generáciu. Farba je rod, plná farba znamená doložené v matrike. Prázdne políčka sú predkovia, ktorých ešte nepoznáme. Klikni na políčko.</p>
+  <div class="fan-wrap">
+    <div class="fan" id="fan"></div>
+    <div class="fan-side">
+      <div class="fan-info" id="fan-info"><span class="t">Klikni na políčko vo vejári.</span></div>
+      <div class="fan-st" id="fan-st"></div>
+      <div class="fan-key" id="fan-key"></div>
+    </div>
+  </div>
+
+  <h2>Celý strom po menách</h2>
+  <p class="sub" id="full-sub">Všetci známi predkovia v jednom strome, zľava Martin, doprava stále starší. Stĺpec je generácia. Rámček s otáznikom je miesto, kde vetva zatiaľ končí. Strom sa dá posúvať do strany.</p>
+  <div class="branch full" id="full"></div>
+
+  <h2>Štyri najbližšie generácie podrobne</h2>
+  <p class="sub">Zľava východisková osoba, doprava rodičia, starí rodičia a prastarí rodičia. Muži majú sivý okraj, ženy zlatý. Číslo v rohu je poradové číslo predka (otec má dvojnásobok, matka dvojnásobok plus jedna).</p>
+  <div class="tree-scroll">
+    <div class="heads">
+      <div class="gen-head">Východisková osoba</div>
+      <div class="gen-head">Rodičia</div>
+      <div class="gen-head">Starí rodičia</div>
+      <div class="gen-head">Prastarí rodičia</div>
+    </div>
+    <div class="tree" id="tree"></div>
+  </div>
+
+  <h2>Vetvy za prastarými rodičmi</h2>
+  <p class="sub">Každý z ôsmich prastarých rodičov a všetci jeho známi predkovia. Rámček s otáznikom je miesto, kde vetva zatiaľ končí. Plný rámček je doložený v matrike, prerušovaný pravdepodobný, modré meno je údaj od rodiny.</p>
+  <div class="branches" id="branches"></div>
+
+  <h2>Čo sme už zistili</h2>
+  <p class="sub">Príbehy, ktoré vyšli z rozhovoru, zo zápisníka a z prvých archívov.</p>
+  <div class="stories" id="stories"></div>
+
+  <h2>Osem rodov</h2>
+  <p class="sub">Rodokmeň sa delí podľa ôsmich prastarých rodičov. Každý rod je jedna vetva so všetkými svojimi predkami.</p>
+  <div class="lines" id="lines"></div>
+
+  <h2>Súrodenci predkov</h2>
+  <p class="sub">Len tí, ktorých uvádza zápisník. Žijúcich príbuzných na tejto stránke neuvádzame.</p>
+  <div class="side" id="side"></div>
+
+  <h2>Čo ešte hľadáme</h2>
+  <p class="sub">Otvorené otázky. Ak niekto z rodiny vie viac, pomôže to.</p>
+  <ul class="open" id="open"></ul>
+
+  <footer>
+    <div>Pramene: rozhovor s Martinom (29. 10. 2026), rodinný zápisník „Strom života našej rodiny“ (zapísala Martinova mama), Arolsen Archives, FamilySearch (r. k. farnosť Lovča, 1671–1940).</div>
+    <div>Žijúci ľudia sú uvedení len menom a rokom narodenia. Stránka sa bude dopĺňať, ako pribúdajú zápisy z matrík.</div>
+  </footer>
+</div>
+
+<script>
+const DATA = {
+  people: {
+    1:  { n: "Martin Kapšo", y: "* 1991", st: "zij", f: "Manželka Natália." },
+    2:  { n: "Róbert Kapšo", y: "* 1964", st: "zij" },
+    3:  { n: "Eva Šomodíková", y: "* 1965", st: "zij" },
+    4:  { n: "Rudolf Kapšo", y: "1935 – 2016", st: "fam", f: "* 13. 2. 1935 Trnové pri Žiline. Vojak z povolania (kapitán), sústružník, potom vedúci MTZ v Elektrovode Kremnica. Pochovaný v Kremnici." },
+    5:  { n: "Margita Hanulová", y: "1939 – 1986", st: "fam", f: "* 14. 11. 1939 Kremnica, doma ju volali Gréta. Úradníčka, celý život v Kremnici." },
+    6:  { n: "Ján Šomodík", y: "1934 – 1981", st: "fam", f: "* 1. 4. 1934 Kysuca pri Lome nad Rimavicou. Riaditeľ Komunálnych služieb v Žiari nad Hronom. Pochovaný v Starej Kremničke." },
+    7:  { n: "Jolana Hrmová", y: "1933 – 2023", st: "fam", f: "* 21. 11. 1933 v Paríži (Argenteuil). Úradníčka a poslankyňa obecného úradu. Sobáš s Jánom 17. 7. 1954.", hl: true },
+    8:  { n: "Izidor Kapšo", y: "?", st: "fam", f: "Trnové. Traktorista (štyrikrát sa s traktorom prevrátil), majiteľ obchodu „Rozličný tovar“." },
+    9:  { n: "Alžbeta (rod. ?)", y: "* 1908", st: "fam", f: "* 15. 11. 1908, Trnové. Družstevníčka. Rodné priezvisko nepoznáme." },
+    10: { n: "Anton Hanula", y: "1895 – 1964", st: "doc", f: "* 13. 6. 1895 Kremnica č. 303, syn remenárskeho tovariša Ondreja Hanulu (* 13. 9. 1867 Banská Bystrica) a Márie Negerovej (* 17. 10. 1871 Kremnica), zosobášených 13. 5. 1895. Starí rodičia: bystrický kováč Ondrej Hanula a Zuzana Srncová, kremnický vežník Štefan Neger (1836–1914) a Zuzana Laczková. Sobáš 2. 1. 1926. Majster výroby v kremnickej Keramike." },
+    11: { n: "Mária Neuschlová", y: "1904 – 1977", st: "doc", f: "* 29. 3. 1904 Kremnica, dcéra nádenníka Ignáca Neuschla a evanjeličky Márie Schwarzovej, zosobášených 22. 10. 1893. Ignác (1869–1932) bol synom baníka z Lúčok. Starí rodičia: Tadeáš Neuschl a Klára Oszwaldová, Michal Schwarz a Johana Frimmelová. Razila mince v Štátnej mincovni Kremnica.", hl: true },
+    12: { n: "Ján Šomodík", y: "1899 – 1973", st: "fam", f: "Detstvo v Kysuci. † 12. 1. 1973." },
+    13: { n: "Anna Vetráková", y: "1908 – 1985", st: "fam", f: "* 18. 8. 1908, † 21. 7. 1985." },
+    14: { n: "Ondrej Hrmo", y: "1905/1906 – 1945", st: "prob", f: "Z Lovče. Žil v Paríži (Argenteuil). Účastník SNP, zahynul v roku 1945 v nacistickom tábore. Pravdepodobne syn Františka Hrma (nar. 1884) a Kataríny Košťovej (nar. 1888) z domu č. 13 v Lovči; ich rodičia František Hrmo (1861–1934) a Katarína Kukučková z Prestavĺk, Juraj Košťa a Barbora Hrmová; ešte o generáciu vyššie Juraj Hrmo „Cvango“ (1812–1895) a Mária Sedláková (asi 1824–1864) a Jurajovi rodičia Jozef Hrmo-Cvango (asi 1780–1847) a Mária Hrmová.", hl: true },
+    15: { n: "Emília Gregušová", y: "1909 – 1984", st: "fam", f: "* 11. 11. 1909, detstvo v Starej Kremničke. V Paríži slúžila. Jej mama bola Anna Poliaková." }
+  },
+  stories: [
+    { h: "Babka Jolana sa narodila v Paríži", p: "Ondrej Hrmo z Lovče a Emília zo Starej Kremničky odišli za prácou do Francúzska. Emília slúžila v Paríži a 21. 11. 1933 sa im v Argenteuil narodila Jolana. Počas vojny sa rodina vrátila do Starej Kremničky.", s: "Zápisník, rozhovor" },
+    { h: "Pradedo Ondrej sa z vojny nevrátil", p: "Zatkli ho ako účastníka Slovenského národného povstania. V Arolsen Archives je pátrací spis „HRMO, ONDREJ, born 20.11.1906“ z 90. rokov a zoznam hrobov cudzincov z roku 1949 z obce Kleindembach v Durínsku, kde je pod číslom 99 „Hrmo Andrey“ s krížikom. Pod zoznamom stojí, že sedem hrobov s asi tridsiatimi mužmi nemá žiadne označenie.", s: "Arolsen Archives, zápisník · zatiaľ pravdepodobné" },
+    { h: "Hrmovci žijú v Lovči od 17. storočia", p: "V indexe krstov farnosti Lovča sa priezvisko Hrmo objavuje už v rokoch 1680 a 1684. Farská rodinná kniha podľa čísel domov, vedená do roku 1940, má Hrmovcov takmer v každom treťom dome.", s: "FamilySearch, farnosť Lovča · index, ešte neoverené na snímkach" },
+    { h: "Ondrej z domu č. 13?", p: "V rodinnej knihe Lovče sme prešli všetkých 101 domov. Jediný Ondrej (maďarsky András) Hrmo správneho veku býval v dome č. 13, „Sivaňeje predné“: narodil sa 5. 4. 1905 Františkovi Hrmovi a Kataríne Košťovej a mal súrodencov Annu, Jána, Jozefa a Adalberta. Arolsen však uvádza 20. 11. 1906, preto je to zatiaľ len pravdepodobné. Rozhodne to Ondrejov sobáš s Emíliou.", s: "FamilySearch, rodinná kniha Lovča, str. 188 · pravdepodobné" },
+    { h: "Prvé zápisy z matriky: vojak a dve Hrmovky", p: "V matrike krstov Lovče sme našli aj krsty Ondrejových pravdepodobných rodičov. František Hrmo sa narodil 10. 12. 1884 v dome č. 25. Jeho otec, tiež František, bol vtedy cisársko-kráľovským vojakom 26. pešieho pluku a zároveň roľníkom, mama bola Katarína Kukučková. Katarína Košťová sa narodila 17. 1. 1888 v dome č. 21 Jurajovi Košťovi „z domu Matúškov“ a Barbore Hrmovej. Hrmovci a Košťovci sa v Lovči ženili medzi sebou viac generácií.", s: "FamilySearch, krsty Lovča 1884 č. 36 a 1888 č. 2 · prečítané na snímke" },
+    { h: "Vojak, ktorý sa ženil vo fašiangoch 1884", p: "František Hrmo starší sa narodil 25. 9. 1861 v dome č. 4 vo Veľkej Lovči Jurajovi Hrmovi a Márii Sedlákovej. Farár k jeho krstu neskôr pripísal, že zomrel 10. 10. 1934. Oženil sa 18. 2. 1884 ako 22-ročný roľník a zároveň vojak 26. pešieho pluku. Jeho nevesta, 21-ročná Katarína Kukučková z Prestavĺk, už nemala ani otca Jána, ani mamu Katarínu, rodenú Abrahámovú. O desať mesiacov sa im narodil prvý syn František.", s: "FamilySearch, krsty Lovča 1861 č. 14, sobáše 1884 č. 3 · prečítané na snímke" },
+    { h: "Za prácou na Zemplín", p: "Ešte pred Parížom chodili Hrmovci z Lovče za prácou ďaleko od domu. Ján, mladší brat Ondreja, sa narodil 12. 6. 1910 na majeri Bélatanya pri Veľkom Kamenci na východnom Slovensku. Jeho otec František je v matrike zapísaný ako robotník. V tom istom roku tam krstili deti aj ďalší dvaja Hrmovci z Lovče, zrejme pracovali spolu na veľkostatku. Rod mal aj prezývku: Juraj Hrmo, starý otec Františka, bol „Cvango“ a dom č. 4 v Lovči sa volal Cvangeje.", s: "FamilySearch, krsty Veľký Kamenec 1910 č. 56 · prečítané; index Lovča" },
+    { h: "Šestnásťročná nevesta a jej svokrovci zo štyridsiateho ôsmeho", p: "Ondrejova babka Barbora Hrmová sa vydávala 26. 1. 1885, mala šestnásť rokov a štyri mesiace. Bola dcérou Jána Hrma a Márie Hrmovej „z domu Širaňov“, takže nie je príbuzná s Hrmovcami z domu Cvangeje. Jej ženích Juraj Košťa „z domu Matúškov“ už nemal otca. Jeho rodičia Ján Košťa Matúška a Katarína Kúšová sa brali 20. 11. 1848, v revolučnom roku, ešte keď boli obaja poddaní.", s: "FamilySearch, sobáše Lovča 1885 č. 1 a 1848 · prečítané na snímke" },
+    { h: "Cvango z domu č. 4: tri ženy a 83 rokov", p: "Juraj Hrmo „Cvango“, prapraprapradedo, sa narodil 3. 2. 1812 vo Veľkej Lovči. Jeho otec Jozef Hrmo-Cvango bol „chudobný poddaný“ a zomrel 14. 1. 1847 ako 67-ročný. Juraj mal so svojou prvou ženou Máriou Sedlákovou najmenej šesť detí. Mária zomrela 25. 1. 1864 ako 39-ročná, len sedem mesiacov po narodení najmladšej Barbory. O tri mesiace, 25. 4. 1864, sa 52-ročný vdovec oženil s 23-ročnou Máriou Maróžnou. Farár zapísal jeho vek na deň presne: 52 rokov, 2 mesiace a 22 dní. Podľa indexu ovdovel aj druhýkrát v roku 1869 a v máji sa oženil tretíkrát. Zomrel 2. 8. 1895 ako 83-ročný a dožil sa vnuka Františka (1884).", s: "FamilySearch, krsty Lovča 1812, úmrtia 1847 a 1864, sobáše 1864 č. 1 · prečítané na snímke; 1869 a 1895 z indexu a prípisu" },
+    { h: "Prababka razila mince, krstný otec strážil vežu", p: "Mária Neuschlová sa narodila 29. 3. 1904 v Kremnici a v Štátnej mincovni neskôr razila mince. Jej otec Ignác Neuschl bol nádenník a katolík, mama Mária Schwarzová evanjelička, takže to bolo zmiešané manželstvo. Neuschl je nemecké priezvisko, typické pre okolité nemecké obce Kunešov a Piargy. Jej muž Anton Hanula sa narodil 13. 6. 1895 v dome č. 303 v rodine remenárskeho tovariša Ondreja Hanulu. Krstným otcom mu bol Štefan Neger, kremnický vežník, teda strážca na veži. Farári dopísali sobáš Antona a Márie z 2. 1. 1926 na okraj krstu oboch.", s: "FamilySearch, krsty Kremnica 1895 č. 65 a 1904 č. 38 · prečítané na snímke" },
+    { h: "Svadba mesiac pred krstom a dedko na veži", p: "Ondrej Hanula a Mária Negerová sa zosobášili 13. 5. 1895 v kostole sv. Kataríny v Kremnici. O mesiac, 13. júna, sa im narodil syn Anton. Ondrej, 28-ročný čalúnnik, sa narodil 13. 9. 1867 v Banskej Bystrici kováčovi Ondrejovi Hanulovi a Zuzane Srncovej. Mária bola dcérou Štefana Negera, kremnického vežníka. Ten istý Štefan Neger bol o mesiac neskôr krstným otcom Antona a krstnou mamou bola Máriina sestra Paulína, takže vnuka niesol ku krstu sám dedko.", s: "FamilySearch, sobáše Kremnica 1895 č. 13, krsty Banská Bystrica 1867 č. 118 · prečítané na snímke" },
+    { h: "Vdova a baník z Lúčok", p: "Neuschlovci boli baníci v Lúčkach pri Kremnici. Klára Oszvaldová, narodená 16. 1. 1825 v rodine baníka, bola ako 25-ročná už vdovou po Martinovi Prokainovi a mala dcéru Julianu. 11. 2. 1850 sa v Lúčkach znovu vydala za 26-ročného baníka Tadeáša Neuschla. Mali spolu najmenej sedem detí. V máji 1862 im v priebehu troch týždňov zomreli dve, päťročná Zuzana a dvojročný Tadeáš. Tadeáš starší zomrel podľa indexu v júni 1871, keď mal ich najmladší syn Ignác, náš prapradedo, dva roky.", s: "FamilySearch, sobáše Lúčky 1850, krsty Lúčky 1825 · prečítané na snímke; úmrtia 1862 a 1871 len z indexu" },
+    { h: "Hanulovci prišli z Liptova", p: "Hanulovci nie sú pôvodom Bystričania. Pradedov pradedo Ondrej Hanula sa narodil okolo roku 1799 v Sliačoch v Liptove, kde žilo veľa Hanulovcov. Ako 28-ročný tovariš, asi tesársky, sa 26. 5. 1827 v slovenskom kostole v Banskej Bystrici oženil s 20-ročnou Máriou Otrubovou. Mária sa narodila v júni 1807 v Kostiviarskej Jánovi Otrubovi a Márii a pred svadbou slúžila u bystrického zlatníka Juraja Szodonku, ktorý jej išiel aj za svedka. O tri roky neskôr je už Ondrej mlynárom v Kostiviarskej, v rodisku svojej ženy.", s: "FamilySearch, sobáše Banská Bystrica 1827 č. 18, krsty B. Bystrica 1807 č. 20 · prečítané na snímke" },
+    { h: "Kováč a sirota z Radvane", p: "Aj Antonov starý otec sa ženil na poslednú chvíľu. Kováč Ondrej Hanula, narodený 11. 2. 1830 v Kostiviarskej pri Banskej Bystrici ako syn mlynára Ondreja Hanulu a Márie Otrubovej, sa 11. 11. 1860 v Radvani oženil s 23-ročnou Zuzanou Srncovou. Zuzana sa narodila 5. 1. 1837 v Radvani súkenníkovi Jánovi Srncovi a Kataríne Ligerhofferovej. Otcovia oboch snúbencov už nežili a nevesta musela priniesť súhlas sirotského úradu, vydaný v deň svadby. Sedem týždňov po svadbe, 2. 1. 1861, sa im narodil prvý syn Ondrej, ale žil len päť týždňov. Meno potom dostal ďalší syn, náš Ondrej (1867), ktorý odišiel do Kremnice.", s: "FamilySearch, sobáše Banská Bystrica 1860 č. 42, krsty B. Bystrica 1830 a 1861, Radvaň 1837 · prečítané na snímke" },
+    { h: "Štvrť storočia na kremnickej veži", p: "Štefan Neger bol vežníkom už v roku 1871, keď sa mu v dome č. 425 narodila dcéra Mária. Krstným otcom jej bol Juraj Burkart, mestský kapitán. Vežníkom bol ešte v roku 1895, teda najmenej 24 rokov strážil mesto z veže, ohlasoval požiare a odbíjal hodiny. So Zuzanou Laczkovou, o 11 rokov mladšou, sa zosobášil 24. 10. 1870, už ako vežník. Svedkom mu bol ten istý mestský kapitán Juraj Burkart, ktorý o rok neskôr krstil ich prvú dcéru. Mali najmenej šesť detí; dve dcérky zomreli ako malé v roku 1882. Štefan sa dožil penzie a zomrel 30. 12. 1914 v dome č. 305 ako 78-ročný na chrípku. Farár ho aj vtedy zapísal ako „vigil in turri, in pensione“, vežníka na penzii. Pochovali ho na Nový rok 1915, v prvej zime svetovej vojny.", s: "FamilySearch, sobáše Kremnica 1870 č. 11, krsty 1871 č. 99, úmrtia 1914 č. 121 · prečítané na snímke; deti z indexu" },
+    { h: "Nevesta zo Švábu", p: "Zuzana Laczková, žena vežníka, sa narodila 21. 10. 1848, v jeseni revolučného roku, v osade Sváb pri Kremnici. Jej otec Anton Laczko bol roľník a s mamou Annou Novodomecovou sa brali už v novembri 1831. Zuzana bola jedným z najmladších zo šiestich detí, ktoré poznáme (1833–1852). Novodomecovci žili vo Švábe tiež, takže sa rodina zrejme ženila v rámci osady.", s: "FamilySearch, krsty Kremnica 1848 č. 39 · prečítané na snímke; sobáš 1831 a súrodenci z indexu" },
+    { h: "Syn zámočníka z mincového mesta", p: "Vežník Štefan Neger sa napokon v Kremnici narodil: pokrstili ho 3. 1. 1836 ako prvé dieťa roka. Farár priezvisko zapísal ako „Næger“, preto ho index dlho skrýval. Jeho rodičia, zámočník Štefan Neger a Terézia Hofferová, sa zosobášili v Kremnici 26. 1. 1835, takže Štefan prišiel na svet necelý rok po svadbe. Otec bol neskôr kováč a nakoniec mincovník, teda pracoval v kremnickej mincovni ako o sto rokov neskôr prapravnučka Mária Neuschlová. Mama Terézia Hofferová zomrela 4. 8. 1847 ako 37-ročná, keď mal Štefan jedenásť rokov; sestrička Jozefa zomrela už ako ročná a brat František ako štrnásťročný. Otec sa v máji 1848 znovu oženil s dvadsaťročnou Agnesou Puszkailerovou a Štefan dostal ešte sedem nevlastných súrodencov. Otec zomrel na týfus 8. 6. 1866 ako 56-ročný. Odkiaľ do Kremnice prišiel, zatiaľ nevieme; jeden Štefan Neger sa narodil v roku 1812 v Banskej Bystrici Tomášovi Negerovi a Anne Sigmundovej, ale že je to on, zatiaľ dokázané nie je.", s: "FamilySearch, sobáše Kremnica 1835 a 1848, krsty 1836, úmrtia 1866 · prečítané na snímke; úmrtie Terézie len z registra" },
+    { h: "Katolík z Lúčok a evanjelička", p: "Ignác Neuschl, 24-ročný katolík z Lúčok (Jánosrét), si 22. 10. 1893 vzal 27-ročnú evanjeličku Máriu Schwarzovú. Otcovia oboch už nežili a farár do poznámky výslovne zapísal „zmiešané manželstvo“. Svedkami boli dvaja baníci, katolík a evanjelik, z každej strany jeden. Ignácov krst z 1869 v Lúčkach má ten istý dom č. 50 a farár naň neskôr pripísal, že Ignác zomrel 18. 10. 1932 v Kremnici. Jeho otec Tadeáš bol baník.", s: "FamilySearch, Lúčky: sobáše 1893 č. 3, krsty 1869 č. 15 · prečítané na snímke" },
+    { h: "Kapšovci prišli spod Žiliny", p: "Rod Kapšovcov nie je kremnický. Dedko Rudolf sa narodil v Trnovom pri Žiline a do Kremnice prišiel ako vojak z povolania. Jeho otec Izidor bol v Trnovom traktoristom a mal obchod s rozličným tovarom.", s: "Zápisník, rozhovor" }
+  ],
+  lines: [
+    [8, "Kapšovci", "Trnové pri Žiline; do Kremnice prišiel Rudolf ako vojak."],
+    [9, "Alžbetin rod", "Rod Alžbety Kapšovej z Trnového, priezvisko nepoznáme."],
+    [10, "Hanulovci", "Kremnica; Anton bol majstrom v Keramike."],
+    [11, "Neuschlovci", "Kremnica, nemecký pôvod; Mária v mincovni."],
+    [12, "Šomodíkovci", "Kysuca pri Lome nad Rimavicou (farnosť Lom, v matrikách ako Somodik či Somogyik), potom Kremnica a Stará Kremnička."],
+    [13, "Vetrákovci", "Rod Anny Šomodíkovej, rod. Vetrákovej. V Lome nad Rimavicou je veľa rodín Vetrákovcov už od roku 1811."],
+    [14, "Hrmovci", "Lovča pri Žiari nad Hronom, v matrikách od 17. storočia; pravdepodobne dom č. 13, „Sivaňeje predné“."],
+    [15, "Gregušovci", "Stará Kremnička (farnosť Horné Opatovce, kde žilo veľa Gregušovcov); Emíliina mama Anna Poliaková."]
+  ],
+  side: [
+    ["Rudolf Kapšo", "Bratia Stanislav, Leonard a Jaroslav Kapšo."],
+    ["Margita Hanulová", "Bratia Mikuláš, Pavel a Anton Hanula."],
+    ["Ján Šomodík", "Sestra Margita (vydatá Vetráková), brat František Šomodík."],
+    ["Jolana Hrmová", "Sestra Anna Kuraťová (1937–2016), manžel Štefan Kurať (1935–2020)."],
+    ["Mária Neuschlová", "Sestry Vilma a Anna Neuschlové."],
+    ["Emília Gregušová", "Sestra Paulína Stračinová (?), nevlastní bratia Ľudovít a Ján Poliak."]
+  ],
+  open: [
+    ["Je Ondrej z domu č. 13 v Lovči (nar. 5. 4. 1905, rodičia František Hrmo a Katarína Košťová) naozaj náš pradedo? Arolsen uvádza 20. 11. 1906.", "sobáš s Emíliou"],
+    ["Kde a kedy sa zosobášili Ondrej Hrmo a Emília (asi 1930–1933)? Zápis je na matričnom úrade, nie online.", "matričný úrad"],
+    ["Odkiaľ bola Mária Sedláková (asi 1824–1864), prvá žena Juraja Hrma? Jej sobáš (asi 1848) v Lovči nie je, úmrtný zápis rodičov neuvádza – asi vo farnosti nevesty.", "sobáše okolité farnosti"],
+    ["Kto boli rodičia Jozefa Hrma-Cvanga (asi 1780–1847)? Najbližšie sedí Jozef pokrstený 2. 1. 1781, syn Ondreja a Mariany Hrmovcov, ale tí mali ďalšieho Jozefa v roku 1791, takže prvý asi zomrel malý. Sobáš Jozefa a Márie v Lovči v rokoch 1795–1805 nie je.", "úmrtia Lovča 1781–1791, sobáše pred 1795"],
+    ["V ktorom tábore Ondrej zahynul a kedy presne? Pátrací spis v Arolsen si môže rodina vyžiadať.", "žiadosť"],
+    ["Aké bolo rodné priezvisko Alžbety Kapšovej z Trnového?", "matriky Trnové"],
+    ["Kto boli rodičia Jána Šomodíka (* 1899) a Anny Vetrákovej (* 1908)? Obaja sú z farnosti Lom nad Rimavicou, ale narodili sa už do štátnych matrík – zápisy sú v archíve v Banskej Bystrici.", "ŠA Banská Bystrica"],
+    ["Kto boli rodičia Emílie Gregušovej (* 1909, Stará Kremnička)? Katolícke krsty Horných Opatoviec sú online len do 1896, rok 1909 je v štátnej matrike v archíve.", "ŠA Banská Bystrica"],
+    ["Odkiaľ prišiel do Kremnice zámočník Štefan Neger (asi 1810–1866), otec vežníka, a jeho žena Terézia Hofferová? Zosobášili sa 26. 1. 1835 v Kremnici, ale zápis neuvádza rodičov ani vek. Kandidát: Štefan Neger * 1812 v Banskej Bystrici, syn Tomáša a Anny Sigmundovej.", "krsty B. Bystrica 1808–1814, Hofferovci v Kremnici"],
+    ["Kto boli rodičia Ondreja Hanulu, pokrsteného okolo roku 1799 v Sliačoch v Liptove? Index Sliačov sa začína až okolo 1805, krst treba prelistovať. A rodné priezvisko Márie, matky Márie Otrubovej?", "krsty Sliače 1798–1800"],
+    ["Odkiaľ prišiel súkenník Ján Srnec do Radvane? Jeho sobáš s Katarínou Ligerhofferovou (asi 1836) nie je v Radvani 1834–1836 ani v Banskej Bystrici 1836. Katarína je pravdepodobne pokrstená 16. 11. 1818 v Radvani ako dcéra Jána a Anny Ligerhofferovcov.", "sobáše v okolitých farnostiach 1835–1836"],
+    ["Odkiaľ boli evanjelici Michal Schwarz a Johana Frimmelová, baníci z Lúčok č. 18 (deti 1860–1873)? A kde sa zosobášili Eliáš Neuschl a Tekla Olbrichtová (asi 1819)?", "evanjelické sobáše Kremnica okolo 1858, Lúčky pred 1817"]
+  ]
+};
+
+const gens = ["Východisková osoba", "Rodičia", "Starí rodičia", "Prastarí rodičia"];
+const label = { fam: "od rodiny", prob: "pravdepodobné", doc: "doložené", zij: "žijúci" };
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+function renderTree() {
+  const tree = document.getElementById("tree");
+  let html = "";
+  for (let g = 0; g < 4; g++) {
+    html += `<div class="genlabel">${gens[g]}</div>`;
+    const first = 2 ** g, count = 2 ** g, span = 8 / count;
+    for (let k = first; k < first + count; k++) {
+      const p = DATA.people[k];
+      if (!p) continue;
+      const row = (k - first) * span + 1;
+      const sex = k === 1 ? "male" : (k % 2 === 0 ? "male" : "female");
+      html += `<div class="p g${g} ${sex}${p.hl ? " highlight" : ""}" style="grid-column:${g + 1};grid-row:${row} / span ${span}">
+        <span class="k">${k}</span>
+        <span class="n">${esc(p.n)}</span>
+        <span class="y">${esc(p.y)}</span>
+        ${p.f ? `<span class="f">${esc(p.f)}</span>` : ""}
+        <span class="chips"><span class="chip ${p.st}">${label[p.st]}</span></span>
+      </div>`;
+    }
+  }
+  tree.innerHTML = html;
+}
+
+function renderRest() {
+  document.getElementById("stories").innerHTML = DATA.stories.map(s =>
+    `<article class="story"><h3>${esc(s.h)}</h3><p>${esc(s.p)}</p><div class="src">${esc(s.s)}</div></article>`).join("");
+  document.getElementById("lines").innerHTML = DATA.lines.map(([k, n, t]) =>
+    `<div class="line"><span class="no">${k}</span><div><b>${esc(n)}</b><span>${esc(t)}</span></div></div>`).join("");
+  document.getElementById("side").innerHTML = DATA.side.map(([h, t]) =>
+    `<div><h4>${esc(h)}</h4><p>${esc(t)}</p></div>`).join("");
+  document.getElementById("open").innerHTML = DATA.open.map(([q, s]) =>
+    `<li><span>${esc(q)}</span><small>${esc(s)}</small></li>`).join("");
+  const all = Object.values(DATA.people);
+  const known = all.length, docs = all.filter(p => p.st === "doc").length;
+  document.getElementById("meta").innerHTML =
+    `<span><b>${known}</b> predkov v 4 generáciách</span><span>+ <b>${Object.keys(ANC).filter(k => k >= 16).length}</b> ďalších v 5.–8. generácii</span><span><b>39</b> zápisov prečítaných v matrike</span><span><b>8</b> rodov</span><span><b>${docs}</b> doložených matrikou</span><span>najstarší Hrmo v indexe: <b>1680</b></span>`;
+}
+
+const ANC = /*ANC*/{"2":{"n":"Robert Kapšo","y":"* 1964","st":"zij","t":""},"3":{"n":"Eva Šomodíková","y":"* 1965","st":"zij","t":""},"4":{"n":"Rudolf Kapšo","y":"1935 – 2016","st":"fam","t":"ZŠ v Trnovom, potom škola dôstojníckeho dorastu (?) v Žili"},"5":{"n":"Margita Hanulová","y":"1939 – 1986","st":"fam","t":"ZŠ a gymnázium v Kremnici"},"6":{"n":"Ján Šomodík","y":"1934 – 1981","st":"fam","t":"ZŠ v Balogu, Poľnohospodárska škola v Lučenci"},"7":{"n":"Jolana Hrmová","y":"1933 – 2023","st":"fam","t":"úradníčka, poslankyňa obecného úradu"},"8":{"n":"Izidor Kapšo","y":"?","st":"fam","t":"traktorista (štyrikrát sa s traktorom prevrátil)"},"9":{"n":"Alžbeta (rodné priezvisko ?)","y":"1908 – ?","st":"fam","t":"družstevníčka"},"10":{"n":"Anton Hanula","y":"1895 – 1964","st":"doc","t":"majster výroby v Keramike Kremnica"},"11":{"n":"Mária Neuschlová","y":"1904 – 1977","st":"doc","t":"birmovaná 21. 5. 1921 Kremnica"},"12":{"n":"Ján Šomodík","y":"1899 – 1973","st":"fam","t":""},"13":{"n":"Anna Vetráková","y":"1908 – 1985","st":"fam","t":""},"14":{"n":"Ondrej Hrmo","y":"1906 (?) – 1945","st":"fam","t":"býval v Lovčej a v Paríži – Argenteuil"},"15":{"n":"Emília Gregušová","y":"1909 – 1984","st":"fam","t":"slúžka v Paríži"},"20":{"n":"Ondrej Hanula","y":"1867 – ?","st":"doc","t":"čalúnnik (tapetarius) a remenársky tovariš (sodalis lorari"},"21":{"n":"Mária Negerová","y":"1871 – ?","st":"doc","t":"Kremnica č. 303 (1895)"},"22":{"n":"Ignác Neuschl","y":"1869 – 1932","st":"doc","t":"nádenník v Kremnici (1904)"},"23":{"n":"Mária Schwarzová","y":"asi 1866 – ?","st":"doc","t":"Kékellő č. 18 (1893)"},"28":{"n":"František Hrmo","y":"1884 – ?","st":"prob","t":"býval v Lovči, dom č. 13 (Sivaňeje predné)"},"29":{"n":"Katarína Košťová","y":"1888 – ?","st":"prob","t":"Lovča, dom č. 13"},"31":{"n":"Anna Poliaková","y":"?","st":"fam","t":"zo Starej Kremničky"},"40":{"n":"Ondrej Hanula","y":"1830 – ?","st":"doc","t":"erárny kováč (reg. faber), Banská Bystrica č. 321 (1860)"},"41":{"n":"Zuzana Srncová","y":"1837 – ?","st":"doc","t":"polosirota už pri sobáši (otec † pred 1860)"},"42":{"n":"Štefan Neger","y":"1836 – 1914","st":"doc","t":"vežník v Kremnici (turris vigil, 1871–1895), potom na penz"},"43":{"n":"Zuzana Laczková","y":"1848 – ?","st":"doc","t":"vdova od 30. 12. 1914"},"44":{"n":"Tadeáš Neuschl","y":"1824 – 1871","st":"doc","t":"baník (metallifossor), Lúčky č. 50 (1869)"},"45":{"n":"Klára Oszvaldová","y":"1825 – po 1893","st":"doc","t":"žila ešte 1893"},"46":{"n":"Michal Schwarz","y":"? – pred 1893","st":"doc","t":"baník, evanjelik, Lúčky (Blaufuss, Kékellő) č. 18 (1863)"},"47":{"n":"Johana Frimmelová","y":"?","st":"doc","t":"evanjelička, Lúčky č. 18 (1863)"},"56":{"n":"František Hrmo","y":"1861 – 1934","st":"prob","t":"roľník a cisársko-kráľovský vojak 26. pešieho pluku (1884)"},"57":{"n":"Katarína Kukučková","y":"1862 – ?","st":"prob","t":"Lovča, dom č. 13"},"58":{"n":"Juraj Košťa","y":"1862 – ?","st":"prob","t":"roľník v Lovči, „z domu Matúškov“"},"59":{"n":"Barbora Hrmová","y":"1868 – ?","st":"prob","t":"Veľká Lovča č. 40, potom č. 21"},"80":{"n":"Ondrej Hanula","y":"asi 1799 – pred 1860","st":"doc","t":"tesársky (?) tovariš v Banskej Bystrici (1827)"},"81":{"n":"Mária Otrubová","y":"1807 – po 1860","st":"doc","t":"slúžka u zlatníka Juraja Szodonku v Banskej Bystrici (1827"},"82":{"n":"Ján Srnec","y":"? – pred 1860","st":"doc","t":"súkenník (pannitonsor) v Radvani"},"83":{"n":"Katarína Ligerhofferová","y":"1818 (?) – po 1860","st":"doc","t":"deti so Srncom 1837–1849 (Zuzana, Karol, Adolf, Anna)"},"84":{"n":"Štefan Neger","y":"asi 1810 – 1866","st":"doc","t":"zámočník (faber serarius) v Kremnici (1835, 1836)"},"85":{"n":"Terézia Hofferová","y":"asi 1810 – 1847","st":"doc","t":"asi 1810"},"86":{"n":"Anton Laczko","y":"1807 – ?","st":"doc","t":"roľník (ruricola) vo Švábe pri Kremnici (1848)"},"87":{"n":"Anna Novodomecová","y":"?","st":"doc","t":"Sváb pri Kremnici (1848)"},"88":{"n":"Eliáš Neuschl","y":"1795 (?) – ?","st":"prob","t":"baník (metallifossor), Lúčky (1824)"},"89":{"n":"Tekla Olbrichtová","y":"?","st":"prob","t":"Lúčky (1824)"},"90":{"n":"Ondrej Oszvaldt","y":"?","st":"prob","t":"baník (metallifossor), Lúčky (1825)"},"91":{"n":"Terézia Krebsová (?)","y":"?","st":"prob","t":"Lúčky (1825)"},"112":{"n":"Juraj Hrmo","y":"1812 – 1895","st":"prob","t":"roľník vo Veľkej Lovči č. 4, prezývka rodu „Cvango“ (dom C"},"113":{"n":"Mária Sedláková","y":"asi 1824 – 1864","st":"prob","t":"Veľká Lovča č. 4"},"114":{"n":"Ján Kukučka","y":"? – pred 1884","st":"prob","t":"roľník, Prestavlky"},"115":{"n":"Katarína Abrahámová","y":"? – pred 1884","st":"prob","t":"Prestavlky"},"116":{"n":"Ján Košťa (Matúška)","y":"? – pred 1885","st":"prob","t":"roľník (poddaný) v Lovči, dom Matúškov"},"117":{"n":"Katarína Kúšová","y":"?","st":"prob","t":"Veľká Lovča"},"118":{"n":"Ján Hrmo","y":"?","st":"prob","t":"roľník vo Veľkej Lovči, dom č. 40 (1885), z domu Petrášov "},"119":{"n":"Mária Hrmová (Širaň)","y":"?","st":"prob","t":"Lovča, z domu Širaňov"},"162":{"n":"Ján Otruba","y":"?","st":"doc","t":"Kostiviarska pri Banskej Bystrici (1807)"},"163":{"n":"Mária (rodné priezvisko ?)","y":"?","st":"doc","t":"Kostiviarska (1807)"},"166":{"n":"Ján Ligerhoffer","y":"1781 (?) – ?","st":"prob","t":"Radvaň (1818)"},"167":{"n":"Anna Pinterová (?)","y":"?","st":"prob","t":"Radvaň (1818)"},"172":{"n":"Michal Laczko","y":"1781 (?) – ?","st":"prob","t":"Sváb pri Kremnici (1807)"},"173":{"n":"Alžbeta Holecová","y":"?","st":"prob","t":"Sváb pri Kremnici (1807)"},"224":{"n":"Jozef Hrmo-Cvango","y":"asi 1780 – 1847","st":"prob","t":"chudobný poddaný (pór jobbágy) vo Veľkej Lovči"},"225":{"n":"Mária Hrmová","y":"?","st":"prob","t":"Veľká Lovča"}}/*ANC_END*/;
+const LINE_OF = k => { while (k > 15) k >>= 1; return k; };
+const stName = { doc: "doložené", prob: "pravdepodobné", fam: "od rodiny", zij: "žijúci", mh: "cudzí strom" };
+const gen = k => Math.floor(Math.log2(k));
+const plain = n => n.replace(/\s*\(.*?\)/g, "").trim();
+const lastWord = n => plain(n).split(/\s+/).pop();
+const lineName = k => { const l = DATA.lines.find(x => x[0] === LINE_OF(k)); return l ? l[1] : ""; };
+const person = k => k === 1 ? { n: "Martin Kapšo", y: "* 1991", st: "zij", t: "manželka Natália" } : ANC[k];
+
+/* Natáliini predkovia: rovnaké číslovanie, 1 = Natália. Doplniť, keď ich poznáme. */
+const NAT = {
+  1: { n: "Natália Haschová", y: "* 1997", st: "zij", t: "Natália Kapšová, rod. Haschová, manželka Martina. Súrodenci Karol Hasch (* 1996), Henrich Hasch (* 1998) a Nina Haschová (* 2007)." },
+  2: { n: "Karol Hasch", y: "* 1965", st: "zij", t: "Natáliin otec" },
+  3: { n: "Eva Lišková", y: "", st: "zij", t: "Natáliina mama, Eva Haschová, rod. Lišková" },
+  7: { n: "Mária Lišková", y: "", st: "fam", t: "Evina mama; rodné priezvisko zatiaľ nepoznáme" }
+};
+
+function info(k, side = "m") {
+  const nat = side === "n", p = nat ? NAT[k] : person(k), el = document.getElementById("fan-info"), g = gen(k);
+  const rel = (nat && k === 1) ? "manželka" : (["východisková osoba", "rodič", "starý rodič", "prastarý rodič", "praprastarý rodič"][g] || `predok v ${g + 1}. generácii`);
+  const rod = nat ? (k > 1 ? ", Natáliina strana" : "") : (k >= 8 ? `, rod ${esc(lineName(k))}` : "");
+  if (!p) { el.innerHTML = `<b>Zatiaľ nepoznáme</b><div class="t">Predok č. ${k}, ${rel}${rod}.</div>`; return; }
+  el.innerHTML = `<b>${esc(p.n)}</b><span class="y">${esc(p.y || "")}${p.y ? " · " : ""}${stName[p.st] || ""}</span><div class="t">${esc(p.t || "")}</div><div class="t">${nat && k === 1 ? "Manželka Martina." : `Predok č. ${k}, ${rel}${rod}.`}</div>`;
+}
+
+function renderFan() {
+  const G = 8, cx = 500, cy = 505, R = [0, 78, 150, 222, 300, 370, 425, 465, 497];
+  const pt = (r, a) => [cx + r * Math.cos(a), cy - r * Math.sin(a)];
+  const hatch = (id, c) => `<pattern id="${id}" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="6" height="6" fill="var(--sheet)"/><line x1="0" y1="0" x2="0" y2="6" stroke="${c}" stroke-width="2.5"/></pattern>`;
+  let s = `<svg viewBox="0 0 1000 1010" role="img" aria-label="Kruh predkov: hore Martin, dole Natália"><defs>${[8, 9, 10, 11, 12, 13, 14, 15].map(l => hatch("h" + l, `var(--l${l})`)).join("")}${hatch("hn", "var(--nat)")}</defs>`;
+  let labels = "";
+  for (const side of ["m", "n"]) {
+  const up = side === "m", who = up ? person : (k => NAT[k]);
+  for (let g = 0; g < G; g++) {
+    const n = 2 ** g;
+    for (let i = 0; i < n; i++) {
+      const k = n + i, p = who(k);
+      const a0 = up ? Math.PI - i * Math.PI / n : Math.PI + i * Math.PI / n;
+      const a1 = up ? Math.PI - (i + 1) * Math.PI / n : Math.PI + (i + 1) * Math.PI / n;
+      const r0 = R[g], r1 = R[g + 1], sw = up ? 1 : 0;
+      let d;
+      if (g === 0) d = `M${cx - r1},${cy} A${r1},${r1} 0 0 ${sw} ${cx + r1},${cy} Z`;
+      else {
+        const [x0, y0] = pt(r0, a0), [x1, y1] = pt(r1, a0), [x2, y2] = pt(r1, a1), [x3, y3] = pt(r0, a1);
+        d = `M${x0},${y0} L${x1},${y1} A${r1},${r1} 0 0 ${sw} ${x2},${y2} L${x3},${y3} A${r0},${r0} 0 0 ${1 - sw} ${x0},${y0} Z`;
+      }
+      const L = up ? LINE_OF(k) : "n", col = g >= 3 ? (up ? `var(--l${L})` : "var(--nat)") : "var(--ink-soft)";
+      let fill = "none", op = 1, stroke = "var(--rule)", dash = 'stroke-dasharray="3 3"';
+      if (p) {
+        dash = ""; stroke = "var(--paper)";
+        if (p.st === "doc") fill = g >= 3 ? col : "var(--gold-soft)";
+        else if (p.st === "prob") { fill = g >= 3 ? `url(#h${L})` : "var(--sheet)"; stroke = col; }
+        else if (p.st === "zij") fill = "var(--sheet)";
+        else { fill = col; op = .3; }
+      }
+      s += `<g class="slot" data-k="${k}" data-s="${side}"><title>${p ? esc(p.n + " · " + (p.y || "")) : "neznámy predok č. " + k}</title><path d="${d}" fill="${fill}" fill-opacity="${op}" stroke="${stroke}" stroke-width="${p ? 1.2 : .8}" ${dash}/></g>`;
+      if (!p) continue;
+      const am = (a0 + a1) / 2, rm = (r0 + r1) / 2;
+      const tf = p.st === "doc" && g >= 3 ? "var(--sheet)" : (p.st === "fam" ? "var(--family)" : "var(--ink)");
+      if (g === 0) labels += up
+        ? `<text x="${cx}" y="${cy - 30}" text-anchor="middle" font-size="16" font-weight="700" style="fill:var(--ink)">Martin</text>`
+        : `<text x="${cx}" y="${cy + 40}" text-anchor="middle" font-size="16" font-weight="700" style="fill:var(--ink)">Natália</text>`;
+      else if (g <= 2) {
+        const [tx, ty] = pt(rm, am), parts = plain(p.n).split(" "), fs = g === 1 ? 15 : 13;
+        labels += `<text x="${tx}" y="${ty - 3}" text-anchor="middle" font-size="${fs}" font-weight="700" style="fill:${tf}">${esc(parts[0])}</text><text x="${tx}" y="${ty + fs - 1}" text-anchor="middle" font-size="${fs - 1}" style="fill:${tf}">${esc(parts.slice(1).join(" "))}</text>`;
+      } else {
+        const [tx, ty] = pt(rm, am), fs = [0, 0, 0, 12.5, 11, 9.5, 8, 7][g];
+        let label = g === 3 ? plain(p.n) : lastWord(p.n);
+        if (g === 3 && label.length > 18) label = lastWord(p.n);
+        let ang = -(am * 180 / Math.PI);
+        while (ang <= -90) ang += 180;
+        while (ang > 90) ang -= 180;
+        labels += `<text x="${tx}" y="${ty}" font-size="${fs}" font-weight="${g <= 4 ? 700 : 500}" text-anchor="middle" dominant-baseline="central" transform="rotate(${ang} ${tx} ${ty})" style="fill:${tf}">${esc(label)}</text>`;
+      }
+    }
+  }
+  }
+  s += `<line x1="0" y1="${cy}" x2="1000" y2="${cy}" stroke="var(--ink)" stroke-width="1.5"/>` + labels
+    + `<text x="12" y="${cy - 8}" font-size="13" style="fill:var(--ink-soft)">Martinov otec ↑</text><text x="988" y="${cy - 8}" font-size="13" text-anchor="end" style="fill:var(--ink-soft)">Martinova mama ↑</text>`
+    + `<text x="12" y="${cy + 20}" font-size="13" style="fill:var(--ink-soft)">Natáliin otec ↓</text><text x="988" y="${cy + 20}" font-size="13" text-anchor="end" style="fill:var(--ink-soft)">Natáliina mama ↓</text></svg>`;
+  const fan = document.getElementById("fan");
+  fan.innerHTML = s;
+  fan.addEventListener("click", e => {
+    const g = e.target.closest(".slot"); if (!g) return;
+    fan.querySelectorAll(".slot.on").forEach(x => x.classList.remove("on")); g.classList.add("on");
+    info(+g.dataset.k, g.dataset.s);
+  });
+  document.getElementById("fan-key").innerHTML = DATA.lines.map(([k, n]) => `<span><i style="background:var(--l${k})"></i>${esc(n)}</span>`).join("") + `<span><i style="background:var(--nat)"></i>Natáliini predkovia</span>`;
+  document.getElementById("fan-st").innerHTML = [
+    ["doložené v matrike", `<rect width="22" height="14" fill="var(--ink-soft)"/>`],
+    ["pravdepodobné", `<defs>${hatch("hk", "var(--ink-soft)")}</defs><rect x=".5" y=".5" width="21" height="13" fill="url(#hk)" stroke="var(--ink-soft)"/>`],
+    ["od rodiny", `<rect width="22" height="14" fill="var(--ink-soft)" fill-opacity=".3"/>`],
+    ["zatiaľ nepoznáme", `<rect x=".5" y=".5" width="21" height="13" fill="none" stroke="var(--ink-soft)" stroke-dasharray="3 3"/>`]
+  ].map(([t, sw]) => `<span><svg width="22" height="14">${sw}</svg>${t}</span>`).join("");
+}
+
+function renderBranches() {
+  const W = 214, H = 58, SW = 140, SH = 24, GAP = 30, ROW = 10;
+  const clip = (t, n) => t.length > n ? t.slice(0, n - 1) + "…" : t;
+  const col = k => k >= 8 ? `var(--l${LINE_OF(k)})` : "var(--ink-soft)";
+  const genWord = g => ["Martin", "rodičia", "starí rodičia", "prastarí rodičia", "praprastarí rodičia"][g] || `${g + 1}. generácia`;
+  function build(k) {
+    const node = { k, p: person(k), kids: [] };
+    if (ANC[2 * k] || ANC[2 * k + 1]) node.kids = [2 * k, 2 * k + 1].map(c => ANC[c] ? build(c) : { k: c, stub: true, kids: [] });
+    else node.kids = [{ k: 2 * k, stub: true, end: true, kids: [] }];
+    return node;
+  }
+  function layout(n, d, st) {
+    n.d = d;
+    if (!n.kids.length) { const h = n.stub ? SH : H; n.y = st.y + h / 2; st.y += h + ROW; return; }
+    const start = st.y;
+    n.kids.forEach(c => layout(c, d + 1, st));
+    const used = st.y - start;
+    if (used < H + ROW) {
+      const off = (H + ROW - used) / 2;
+      (function shift(m) { m.kids.forEach(c => { c.y += off; shift(c); }); })(n);
+      st.y = start + H + ROW;
+    }
+    n.y = (n.kids[0].y + n.kids[n.kids.length - 1].y) / 2;
+  }
+  function tree(k, name) {
+    const g0 = gen(k), TOP = 26, root = build(k), st = { y: TOP }, all = [];
+    layout(root, 0, st);
+    (function walk(n) { all.push(n); n.kids.forEach(walk); })(root);
+    const known = all.filter(n => !n.stub), maxD = Math.max(...known.map(n => n.d));
+    const years = known.flatMap(n => (n.p.y.match(/1[6-9]\d\d/g) || []).map(Number));
+    const oldest = years.length ? Math.min(...years) : null;
+    const docs = known.filter(n => n.p.st === "doc").length;
+    const width = (maxD + 1) * (W + GAP) + SW + 2, height = Math.max(st.y - ROW, H + TOP) + 2;
+    const x = d => d * (W + GAP) + 1;
+    let svg = `<svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="img" aria-label="Strom ${esc(name)}">`;
+    for (let d = 0; d <= maxD + 1; d++) svg += `<text class="kk" x="${x(d)}" y="14" style="text-transform:uppercase;letter-spacing:.06em">${g0 + d + 1}. gen. · ${genWord(g0 + d)}</text>`;
+    for (const n of all) for (const c of n.kids) {
+      const x0 = x(n.d) + W, x1 = x(c.d), xm = x0 + GAP / 2;
+      svg += `<path d="M${x0},${n.y} H${xm} V${c.y} H${x1}" fill="none" stroke="var(--rule)" stroke-width="1.2" ${c.stub ? 'stroke-dasharray="3 3"' : ""}/>`;
+    }
+    for (const n of all) {
+      const X = x(n.d);
+      if (n.stub) {
+        const t = n.end ? "ďalej zatiaľ nevieme" : (n.k % 2 ? "matka ?" : "otec ?");
+        svg += `<g class="stub"><rect x="${X}" y="${n.y - SH / 2}" width="${SW}" height="${SH}" rx="4" fill="none" stroke="var(--rule)" stroke-dasharray="4 3"/><text x="${X + 10}" y="${n.y + 4}">${t}</text></g>`;
+        continue;
+      }
+      const p = n.p, prob = p.st === "prob", c = col(n.k);
+      svg += `<g><title>${esc(p.n + " · " + p.y + (p.t ? " · " + p.t : "") + " · " + (stName[p.st] || ""))}</title>
+        <rect x="${X}" y="${n.y - H / 2}" width="${W}" height="${H}" rx="4" fill="var(--sheet)" stroke="${prob ? c : "var(--rule)"}" ${prob ? 'stroke-dasharray="5 3"' : ""}/>
+        <rect x="${X}" y="${n.y - H / 2}" width="4" height="${H}" fill="${c}" ${p.st === "doc" ? "" : 'fill-opacity=".45"'}/>
+        <text x="${X + 12}" y="${n.y - 9}" font-size="14" font-weight="700" ${p.st === "fam" ? 'style="fill:var(--family)"' : ""}>${esc(clip(p.n, 26))}</text>
+        <text class="kk" x="${X + W - 8}" y="${n.y - 10}" text-anchor="end">${n.k}</text>
+        <text class="yy" x="${X + 12}" y="${n.y + 7}">${esc(clip(p.y, 30))} · ${stName[p.st] || ""}</text>
+        <text class="tt" x="${X + 12}" y="${n.y + 21}">${esc(clip(p.t || "", 36))}</text></g>`;
+    }
+    svg += `</svg>`;
+    return { svg, n: known.length, docs, gens: g0 + maxD + 1, oldest };
+  }
+  const word = n => n === 1 ? "osoba" : n < 5 ? "osoby" : "osôb";
+  const meta = t => `${t.n} ${word(t.n)} · ${t.docs} doložených · najďalej ${t.gens}. generácia${t.oldest ? ` · najstarší rok ${t.oldest}` : ""}`;
+  const f = tree(1, "celý rodokmeň");
+  document.getElementById("full").innerHTML = `<header><span class="bm">${meta(f)}</span></header><div class="scroll">${f.svg}</div>`;
+  let out = "";
+  for (const [k, name] of DATA.lines) {
+    const t = tree(k, name);
+    out += `<section class="branch" style="--lc:var(--l${k})"><header><h3>${esc(name)}</h3>
+      <span class="bm">${meta(t)}</span></header>
+      <div class="scroll">${t.svg}</div></section>`;
+  }
+  document.getElementById("branches").innerHTML = out;
+}
+
+renderTree();
+renderRest();
+renderFan();
+renderBranches();
+</script>
